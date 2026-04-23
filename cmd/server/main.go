@@ -3,10 +3,15 @@ package main
 import (
 	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/luissebastian953/stratix-core/config"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("failed to load env: %v", err)
+	}
+
 	cfg := config.LoadConfig()
 
 	app, err := NewApp(cfg)
@@ -21,5 +26,6 @@ func main() {
 	}()
 
 	waitForShutdown()
+
 	app.Shutdown()
 }
