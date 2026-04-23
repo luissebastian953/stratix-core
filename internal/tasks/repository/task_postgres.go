@@ -481,13 +481,12 @@ func scanTask(s scanner) (*domain.Task, error) {
 		typeStr        string
 	)
 
-	err := s.Scan(
+	if err := s.Scan(
 		&t.ID, &t.UserID, &parentID, &typeStr, &t.Title, &t.Details,
 		&statusStr, &priorityStr, &t.Pinned, &t.Archived,
 		&occurrenceStr, &startAt, &endAt, &recurrenceJSON,
 		&t.Location, &t.Labels, &t.CreatedAt, &t.UpdatedAt,
-	)
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
 

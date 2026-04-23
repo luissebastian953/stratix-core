@@ -39,8 +39,7 @@ func (r *RefreshTokenRepository) Get(ctx context.Context, token string) (*domain
 	`, token)
 
 	var rt domain.RefreshToken
-	err := row.Scan(&rt.Token, &rt.UserID, &rt.ExpiresAt, &rt.Revoked, &rt.CreatedAt)
-	if err != nil {
+	if err := row.Scan(&rt.Token, &rt.UserID, &rt.ExpiresAt, &rt.Revoked, &rt.CreatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, &domain.NotFoundError{Resource: "refresh_token", ID: token}
 		}

@@ -33,8 +33,10 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, &domain.NotFoundError{Resource: "user", ID: id.String()}
 		}
+
 		return nil, err
 	}
+
 	return user, nil
 }
 
@@ -51,24 +53,26 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, &domain.NotFoundError{Resource: "user", ID: email}
 		}
+
 		return nil, err
 	}
+
 	return user, nil
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
-	_, err := r.db.Exec(ctx, `
+	if _, err := r.db.Exec(ctx, `
 		INSERT INTO users (id, email, password_hash, created_at)
 		VALUES ($1, $2, $3, $4)
-	`, user.ID, user.Email, user.PasswordHash, user.CreatedAt)
-
-	if err != nil {
+	`, user.ID, user.Email, user.PasswordHash, user.CreatedAt); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return &domain.ConflictError{Resource: "user", Field: "email"}
 		}
+
 		return err
 	}
+
 	return nil
 }
 
@@ -79,17 +83,20 @@ func (r *UserRepository) UpdatePasswordHash(ctx context.Context, userID uuid.UUI
 	if err != nil {
 		return err
 	}
+
 	if result.RowsAffected() == 0 {
 		return &domain.NotFoundError{Resource: "user", ID: userID.String()}
 	}
+
 	return nil
 }
 
 func scanUser(row pgx.Row) (*domain.User, error) {
 	var u domain.User
-	err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.CreatedAt)
-	if err != nil {
+
+	if err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.CreatedAt); err != nil {
 		return nil, err
 	}
+
 	return &u, nil
 }

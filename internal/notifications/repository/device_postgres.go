@@ -73,8 +73,7 @@ type scannable interface {
 
 func scanDevice(row scannable) (*domain.Device, error) {
 	var d domain.Device
-	err := row.Scan(&d.DeviceID, &d.UserID, &d.Token, &d.Platform, &d.UpdatedAt)
-	if err != nil {
+	if err := row.Scan(&d.DeviceID, &d.UserID, &d.Token, &d.Platform, &d.UpdatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, &domain.NotFoundError{Resource: "device", ID: ""}
 		}

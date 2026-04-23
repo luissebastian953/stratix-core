@@ -36,7 +36,7 @@ func (r *AnalyticsRepository) Save(ctx context.Context, event *domain.AnalyticsE
 func (r *AnalyticsRepository) Summary(ctx context.Context, userID uuid.UUID) (*domain.TaskSummary, error) {
 	var s domain.TaskSummary
 
-	err := r.db.QueryRow(ctx, `
+	if err := r.db.QueryRow(ctx, `
 		SELECT
 			COUNT(*)                                                          AS total,
 			COUNT(*) FILTER (WHERE status = 'completed')                     AS completed,
@@ -44,8 +44,7 @@ func (r *AnalyticsRepository) Summary(ctx context.Context, userID uuid.UUID) (*d
 			COUNT(*) FILTER (WHERE archived = TRUE)                          AS archived
 		FROM tasks
 		WHERE user_id = $1
-	`, userID).Scan(&s.Total, &s.Completed, &s.Overdue, &s.Archived)
-	if err != nil {
+	`, userID).Scan(&s.Total, &s.Completed, &s.Overdue, &s.Archived); err != nil {
 		return nil, fmt.Errorf("Summary: %w", err)
 	}
 

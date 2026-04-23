@@ -107,7 +107,7 @@ stratix-core uses **Clean Architecture** organized in three concentric layers:
 │                  Domain Layer                   │  ← entities, rules, interfaces, events
 │              internal/domain/                   │
 ├─────────────────────────────────────────────────┤
-│               Infrastructure Layer             │  ← database, external APIs, storage
+│               Infrastructure Layer              │  ← database, external APIs, storage
 │    internal/*/repository/ · internal/ai/        │
 └─────────────────────────────────────────────────┘
 ```

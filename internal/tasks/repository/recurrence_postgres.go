@@ -77,11 +77,12 @@ func (r *postgresRecurrenceRepository) GetInstance(ctx context.Context, id uuid.
 		}
 		return nil, fmt.Errorf("GetInstance: %w", err)
 	}
+
 	return inst, nil
 }
 
 func (r *postgresRecurrenceRepository) SaveInstance(ctx context.Context, instance *domain.RecurrenceInstance) error {
-	_, err := r.db.Exec(ctx, `
+	if _, err := r.db.Exec(ctx, `
 		INSERT INTO recurrence_instances (id, task_id, scheduled_at, status, completed_at)
 		VALUES ($1, $2, $3, $4, $5)
 		ON CONFLICT (task_id, scheduled_at) DO NOTHING
@@ -91,10 +92,10 @@ func (r *postgresRecurrenceRepository) SaveInstance(ctx context.Context, instanc
 		instance.ScheduledAt.UTC(),
 		string(instance.Status),
 		instance.CompletedAt,
-	)
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("SaveInstance: %w", err)
 	}
+
 	return nil
 }
 
@@ -112,19 +113,21 @@ func (r *postgresRecurrenceRepository) UpdateInstance(ctx context.Context, insta
 	if err != nil {
 		return fmt.Errorf("UpdateInstance: %w", err)
 	}
+
 	if result.RowsAffected() == 0 {
 		return &domain.NotFoundError{Resource: "recurrence_instance", ID: instance.ID.String()}
 	}
+
 	return nil
 }
 
 func (r *postgresRecurrenceRepository) DeleteByTaskID(ctx context.Context, taskID uuid.UUID) error {
-	_, err := r.db.Exec(ctx, `
+	if _, err := r.db.Exec(ctx, `
 		DELETE FROM recurrence_instances WHERE task_id = $1
-	`, taskID)
-	if err != nil {
+	`, taskID); err != nil {
 		return fmt.Errorf("DeleteByTaskID: %w", err)
 	}
+
 	return nil
 }
 
@@ -153,9 +156,11 @@ func (r *postgresRecurrenceRepository) ListPendingOverdue(ctx context.Context, l
 		}
 		instances = append(instances, inst)
 	}
+
 	if instances == nil {
 		instances = []*domain.RecurrenceInstance{}
 	}
+
 	return instances, rows.Err()
 }
 
@@ -167,16 +172,17 @@ func scanInstance(s scanner) (*domain.RecurrenceInstance, error) {
 		statusStr   string
 		completedAt *time.Time
 	)
-	err := s.Scan(
+
+	if err := s.Scan(
 		&inst.ID,
 		&inst.TaskID,
 		&inst.ScheduledAt,
 		&statusStr,
 		&completedAt,
-	)
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
+
 	inst.Status = domain.InstanceStatus(statusStr)
 	inst.CompletedAt = completedAt
 	inst.ScheduledAt = inst.ScheduledAt.UTC()

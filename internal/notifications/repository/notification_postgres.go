@@ -19,13 +19,13 @@ func NewNotificationRepository(db *pgxpool.Pool) domain.NotificationRepository {
 }
 
 func (r *NotificationRepository) Save(ctx context.Context, n *domain.Notification) error {
-	_, err := r.db.Exec(ctx, `
+	if _, err := r.db.Exec(ctx, `
 		INSERT INTO notifications (id, user_id, task_id, channel, title, body, sent_at, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-	`, n.ID, n.UserID, n.TaskID, n.Channel, n.Title, n.Body, n.SentAt, n.CreatedAt)
-	if err != nil {
+	`, n.ID, n.UserID, n.TaskID, n.Channel, n.Title, n.Body, n.SentAt, n.CreatedAt); err != nil {
 		return fmt.Errorf("Save notification: %w", err)
 	}
+
 	return nil
 }
 
@@ -44,6 +44,7 @@ func (r *NotificationRepository) ListByUser(ctx context.Context, userID uuid.UUI
 	if err != nil {
 		return nil, fmt.Errorf("ListByUser notifications: %w", err)
 	}
+
 	defer rows.Close()
 
 	var notifications []*domain.Notification
@@ -57,8 +58,10 @@ func (r *NotificationRepository) ListByUser(ctx context.Context, userID uuid.UUI
 		}
 		notifications = append(notifications, &n)
 	}
+
 	if notifications == nil {
 		notifications = []*domain.Notification{}
 	}
+
 	return notifications, rows.Err()
 }
