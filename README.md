@@ -6,17 +6,62 @@ Modular monolith REST API for **Stratix** — a task management mobile app (iOS/
 
 ## Table of Contents
 
-1. [Infrastructure](#infrastructure)
-2. [Architecture Overview](#architecture-overview)
-3. [Layer Guide — Where to Find, Add, Update, or Delete Features](#layer-guide)
-4. [Dangerous Layers — What to Be Careful With](#dangerous-layers)
-5. [Module Map](#module-map)
-6. [Domain Model](#domain-model)
-7. [Event System](#event-system)
-8. [API Routes](#api-routes)
-9. [Configuration](#configuration)
-10. [Database](#database)
-11. [Q&A — Business and Technical](#qa)
+1. [Getting Started](#getting-started)
+2. [Infrastructure](#infrastructure)
+3. [Architecture Overview](#architecture-overview)
+4. [Layer Guide — Where to Find, Add, Update, or Delete Features](#layer-guide)
+5. [Dangerous Layers — What to Be Careful With](#dangerous-layers)
+6. [Module Map](#module-map)
+7. [Domain Model](#domain-model)
+8. [Event System](#event-system)
+9. [API Routes](#api-routes)
+10. [Configuration](#configuration)
+11. [Database](#database)
+12. [Q&A — Business and Technical](#qa)
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Go 1.21+
+- A running PostgreSQL database (or a [Neon](https://neon.tech) connection string)
+
+### 1. Clone and install dependencies
+
+```bash
+git clone https://github.com/luissebastian953/stratix-core
+cd stratix-core
+go mod download
+```
+
+### 2. Set environment variables
+
+Copy the required variables into a `.env` file (or export them directly):
+
+```env
+DATABASE_URL=postgres://user:password@host/dbname
+JWT_SECRET=your-secret-here
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+See the [Configuration](#configuration) section for the full list of variables.
+
+### 3. Run the server
+
+```bash
+go run ./cmd/server
+```
+
+Or build first then run:
+
+```bash
+go build -o stratix-core ./cmd/server
+./stratix-core
+```
+
+The server starts on port `8080` by default (`APP_PORT` to override).
 
 ---
 

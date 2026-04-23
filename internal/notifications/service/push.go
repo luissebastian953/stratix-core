@@ -27,10 +27,3 @@ func (s *StubPushSender) Send(_ context.Context, token, platform, title, body st
 	)
 	return nil
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
