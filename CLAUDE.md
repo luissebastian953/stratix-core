@@ -12,6 +12,21 @@ Build and run:
 go build -o stratix-core ./cmd/server && ./stratix-core
 ```
 
+## Database
+
+```bash
+go run ./cmd/migrate up          # apply all pending migrations
+go run ./cmd/migrate down        # roll back 1 migration
+go run ./cmd/migrate down 3      # roll back 3 migrations
+go run ./cmd/migrate version     # show current version
+go run ./cmd/migrate seed        # insert dummy data (dev only)
+```
+
+> **Warning:** `down` drops tables and data — never run against production.
+> **Warning:** `seed` is dev-only — verify `DATABASE_URL` in `.env` before running.
+
+Seed users: `alice@example.com` and `bob@example.com`, password `password123`.
+
 ## Common commands
 
 ```bash

@@ -48,7 +48,25 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 See the [Configuration](#configuration) section for the full list of variables.
 
-### 3. Run the server
+### 3. Run migrations
+
+> **Warning:** Always run migrations before starting the server for the first time. Migrations are irreversible in production — never edit an already-applied migration file, create a new one instead.
+
+```bash
+go run ./cmd/migrate up
+```
+
+### 4. (Optional) Seed dummy data
+
+> **Warning:** Only run the seed against a development database. It inserts dummy users and tasks — never run this against a production database.
+
+```bash
+go run ./cmd/migrate seed
+```
+
+Inserts two users (`alice@example.com` / `bob@example.com`, password `password123`) and sample tasks covering all task types and statuses.
+
+### 5. Run the server
 
 ```bash
 go run ./cmd/server
@@ -528,19 +546,54 @@ All values are read in `config/config.go`. Set them as environment variables (Ko
 
 ## Database
 
+### Migration CLI
+
+Migrations are managed by `cmd/migrate` using [golang-migrate](https://github.com/golang-migrate/migrate). It reads `DATABASE_URL` from `.env` automatically.
+
+```bash
+# apply all pending migrations
+go run ./cmd/migrate up
+
+# roll back 1 migration (pass a number to roll back more)
+go run ./cmd/migrate down
+go run ./cmd/migrate down 3
+
+# check current version
+go run ./cmd/migrate version
+
+# insert seed data (development only)
+go run ./cmd/migrate seed
+```
+
+> **Warning:** `down` is destructive — it drops tables and data. Never run it against a production database unless you know exactly what you are rolling back.
+
+> **Warning:** `seed` is for development only. It inserts dummy users and tasks into whatever `DATABASE_URL` points to. Double-check your `.env` before running.
+
 ### Migrations
 
-Run in order. Files in `db/migrations/`:
+Files live in `db/migrations/` and run in order:
 
-| Migration | Creates |
+| Migration | What it creates |
 |---|---|
 | `001_create_users` | `users`, `refresh_tokens` |
 | `002_create_tasks` | `tasks`, `task_links`, `task_attachments` + enums |
 | `003_create_recurrence_instances` | `recurrence_instances` |
 | `004_create_notifications` | `devices`, `notifications` |
 | `005_create_analytics_events` | `analytics_events` |
+| `006_alter_tasks_status_nullable` | makes `tasks.status` nullable (required for `log` type tasks) |
 
-**Never edit an already-applied migration.** Create a new one instead.
+**Never edit an already-applied migration.** Create a new numbered file instead.
+
+### Seed Data
+
+`db/seeds/seed.sql` inserts development data when you run `go run ./cmd/migrate seed`.
+
+| User | Password | Data |
+|---|---|---|
+| `alice@example.com` | `password123` | 8 tasks (all types), analytics events |
+| `bob@example.com` | `password123` | 2 tasks |
+
+Seed uses `ON CONFLICT DO NOTHING` so it is safe to run multiple times.
 
 ### Connection
 
