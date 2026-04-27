@@ -21,7 +21,7 @@ CREATE TABLE tasks (
     type            task_type     NOT NULL DEFAULT 'todo',
     title           TEXT          NOT NULL,
     details         TEXT,
-    status          task_status   NOT NULL DEFAULT 'backlog',
+    status          task_status,
     priority        task_priority,
     pinned          BOOLEAN       NOT NULL DEFAULT FALSE,
     archived        BOOLEAN       NOT NULL DEFAULT FALSE,
