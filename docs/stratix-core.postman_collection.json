@@ -1,0 +1,350 @@
+{
+  "info": {
+    "name": "Stratix Core API",
+    "_postman_id": "stratix-core-api",
+    "description": "REST API for Stratix — a task management app. All protected routes require a Bearer token. Use the Login request to obtain tokens; the collection auto-saves them via test scripts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "task_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', body.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', body.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', body.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', body.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/refresh", "host": ["{{base_url}}"], "path": ["auth", "refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', body.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', body.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/logout", "host": ["{{base_url}}"], "path": ["auth", "logout"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "List Tasks",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tasks?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "limit", "value": "20", "description": "Page size (default 20)" },
+                { "key": "cursor", "value": "", "description": "Pagination cursor from previous response", "disabled": true },
+                { "key": "types", "value": "todo,meeting", "description": "Comma-separated task types", "disabled": true },
+                { "key": "statuses", "value": "backlog,in_progress", "description": "Comma-separated statuses", "disabled": true },
+                { "key": "labels", "value": "work", "description": "Comma-separated labels", "disabled": true },
+                { "key": "from", "value": "2026-01-01T00:00:00Z", "description": "Start of date range (RFC3339)", "disabled": true },
+                { "key": "to", "value": "2026-12-31T23:59:59Z", "description": "End of date range (RFC3339)", "disabled": true },
+                { "key": "search", "value": "dentist", "description": "Full-text search on title", "disabled": true },
+                { "key": "only_roots", "value": "true", "description": "Exclude sub-tasks", "disabled": true },
+                { "key": "archived", "value": "false", "description": "Filter archived tasks", "disabled": true },
+                { "key": "pinned", "value": "true", "description": "Filter pinned tasks", "disabled": true },
+                { "key": "parent_id", "value": "", "description": "Filter by parent task UUID", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/tasks", "host": ["{{base_url}}"], "path": ["tasks"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"todo\",\n  \"title\": \"Buy groceries\",\n  \"details\": \"Milk, eggs, bread\",\n  \"priority\": \"medium\",\n  \"occurrence_type\": \"once\",\n  \"start_at\": null,\n  \"end_at\": null,\n  \"location\": \"\",\n  \"labels\": [\"errands\"],\n  \"links\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('task_id', body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Create Recurring Task",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/tasks", "host": ["{{base_url}}"], "path": ["tasks"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"meeting\",\n  \"title\": \"Team standup\",\n  \"details\": \"Daily sync\",\n  \"priority\": \"medium\",\n  \"occurrence_type\": \"recurring\",\n  \"start_at\": \"2026-04-28T09:00:00Z\",\n  \"end_at\": \"2026-04-28T09:30:00Z\",\n  \"labels\": [\"work\"],\n  \"recurrence_rule\": {\n    \"frequency\": \"weekly\",\n    \"interval\": 1,\n    \"by_weekday\": [1, 2, 3, 4, 5]\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"status\": \"in_progress\",\n  \"priority\": \"high\",\n  \"labels\": [\"work\", \"urgent\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Task",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}/complete", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "complete"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Archive Task",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}/archive", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "archive"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List Children",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}/children", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}", "children"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/tasks/{{task_id}}", "host": ["{{base_url}}"], "path": ["tasks", "{{task_id}}"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/analytics/summary", "host": ["{{base_url}}"], "path": ["analytics", "summary"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Type Distribution",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/analytics/distribution", "host": ["{{base_url}}"], "path": ["analytics", "distribution"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Activity (Completions per Day)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/analytics/activity?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["analytics", "activity"],
+              "query": [
+                { "key": "days", "value": "30", "description": "Number of days to look back (default 30)" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Register Device",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/notifications/devices", "host": ["{{base_url}}"], "path": ["notifications", "devices"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"device-abc-123\",\n  \"token\": \"fcm-or-apns-token-here\",\n  \"platform\": \"ios\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unregister Device",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/notifications/devices/device-abc-123", "host": ["{{base_url}}"], "path": ["notifications", "devices", "device-abc-123"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/notifications?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["notifications"],
+              "query": [
+                { "key": "limit", "value": "50", "description": "Max results (default 50)" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Parse Natural Language",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/ai/parse", "host": ["{{base_url}}"], "path": ["ai", "parse"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": \"dentist appointment Friday at 3pm, high priority\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
