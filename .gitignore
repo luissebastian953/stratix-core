@@ -8,6 +8,10 @@
 *.so
 *.dylib
 
+# Built binaries
+stratix-core
+cmd/migrate/migrate
+
 # Test binary, built with `go test -c`
 *.test
 
