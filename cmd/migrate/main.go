@@ -16,7 +16,9 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("failed to load environment variables: %v", err)
+	}
 
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
