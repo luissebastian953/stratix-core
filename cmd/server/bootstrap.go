@@ -48,8 +48,12 @@ func NewApp(cfg config.Config) (*App, error) {
 
 	dispatcher := events.NewDispatcher()
 
-	// TODO: replace with real R2 client once storage credentials are configured
-	storageClient := storage.NewFakeClient()
+	var storageClient storage.Client
+	if cfg.R2AccountID != "" && cfg.R2AccessKeyID != "" && cfg.R2Bucket != "" {
+		storageClient = storage.NewR2Client(cfg.R2AccountID, cfg.R2AccessKeyID, cfg.R2SecretAccessKey, cfg.R2Bucket)
+	} else {
+		storageClient = storage.NewFakeClient()
+	}
 
 	// ── Auth ──────────────────────────────────────────────────────────────────
 	userRepo := authrepo.NewUserRepository(db)

@@ -28,6 +28,11 @@ type Config struct {
 
 	AIRateLimitRequests int
 	AIRateLimitWindow   time.Duration
+
+	R2AccountID       string
+	R2AccessKeyID     string
+	R2SecretAccessKey string
+	R2Bucket          string
 }
 
 func LoadConfig() Config {
@@ -53,6 +58,11 @@ func LoadConfig() Config {
 
 		AIRateLimitRequests: envInt("AI_RATE_LIMIT_REQUESTS", 20),
 		AIRateLimitWindow:   envDuration("AI_RATE_LIMIT_WINDOW", time.Hour),
+
+		R2AccountID:       os.Getenv("R2_ACCOUNT_ID"),
+		R2AccessKeyID:     os.Getenv("R2_ACCESS_KEY_ID"),
+		R2SecretAccessKey: os.Getenv("R2_SECRET_ACCESS_KEY"),
+		R2Bucket:          os.Getenv("R2_BUCKET"),
 	}
 }
 
